@@ -1,6 +1,5 @@
 const board = document.getElementById("board");
 const statusText = document.getElementById("status");
-const turnsText = document.getElementById("turns");
 const resetButton = document.getElementById("reset");
 const swapButton = document.getElementById("swap");
 
@@ -26,10 +25,6 @@ function updateStatus(message) {
   statusText.textContent = message;
 }
 
-function updateTurn() {
-  turnsText.textContent = `Turn ${moves + 1}`;
-}
-
 function setCell(index, player) {
   state[index] = player;
   cells[index].textContent = player;
@@ -48,7 +43,6 @@ function clearBoard() {
   });
   currentPlayer = firstPlayer;
   updateStatus(`${currentPlayer} to move`);
-  updateTurn();
 }
 
 function checkWinner() {
@@ -85,7 +79,6 @@ function handleMove(index) {
 
   currentPlayer = currentPlayer === "X" ? "O" : "X";
   updateStatus(`${currentPlayer} to move`);
-  updateTurn();
 }
 
 cells.forEach((cell) => {

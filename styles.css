@@ -26,18 +26,19 @@ body {
     linear-gradient(145deg, #f7f1e8 0%, #f4e6da 55%, #fde9d6 100%);
   display: grid;
   place-items: center;
-  padding: 48px 20px 72px;
+  padding: 40px 20px 72px;
 }
 
 .page {
   width: min(960px, 100%);
   display: grid;
-  gap: 36px;
+  gap: 28px;
 }
 
 .hero {
   display: grid;
   gap: 12px;
+  text-align: center;
 }
 
 .eyebrow {
@@ -55,26 +56,27 @@ h1 {
 
 .subtitle {
   max-width: 52ch;
-  margin: 0;
+  margin: 0 auto;
   color: rgba(31, 27, 22, 0.7);
   line-height: 1.5;
 }
 
 .game {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: 30px;
-  align-items: center;
+  gap: 24px;
+  justify-items: center;
 }
 
 .panel {
   background: var(--panel);
   backdrop-filter: blur(16px);
-  padding: 26px;
+  padding: 18px 24px;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   display: grid;
-  gap: 16px;
+  gap: 12px;
+  width: min(520px, 100%);
+  justify-items: center;
 }
 
 .status {
@@ -82,14 +84,11 @@ h1 {
   font-weight: 700;
 }
 
-.turns {
-  color: rgba(31, 27, 22, 0.6);
-}
-
 .controls {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 button {
@@ -133,6 +132,7 @@ button {
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
+  width: min(520px, 100%);
 }
 
 .board::before,
@@ -198,16 +198,6 @@ button {
 .notes ul {
   margin-bottom: 0;
   padding-left: 20px;
-}
-
-@media (max-width: 880px) {
-  .game {
-    grid-template-columns: 1fr;
-  }
-
-  .board {
-    order: -1;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
