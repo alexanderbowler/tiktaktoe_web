@@ -29,12 +29,15 @@
           <div class="controls">
             <button class="primary" id="reset">Reset</button>
             <button class="ghost" id="swap">Swap first player</button>
-            <label class="mode-toggle" for="mode-toggle">
-              <span>2 Player</span>
-              <input type="checkbox" id="mode-toggle" />
-              <span class="slider" aria-hidden="true"></span>
-              <span>vs AI</span>
-            </label>
+            <div class="mode-toggle" role="group" aria-label="Game mode">
+              <span class="mode-indicator" aria-hidden="true"></span>
+              <button class="mode-option is-active" id="mode-two" type="button" data-mode="two-player">
+                2 Player
+              </button>
+              <button class="mode-option" id="mode-ai" type="button" data-mode="ai">
+                vs AI
+              </button>
+            </div>
           </div>
         </div>
 

@@ -2,7 +2,8 @@ const board = document.getElementById("board");
 const statusText = document.getElementById("status");
 const resetButton = document.getElementById("reset");
 const swapButton = document.getElementById("swap");
-const modeToggle = document.getElementById("mode-toggle");
+const modeToggle = document.querySelector(".mode-toggle");
+const modeOptions = Array.from(document.querySelectorAll(".mode-option"));
 
 const API_BASE = window.TTT_API_BASE || "";
 const cells = Array.from(board.querySelectorAll(".cell"));
@@ -38,6 +39,14 @@ function applyWinningLine(line) {
     if (cells[index]) {
       cells[index].classList.add("win");
     }
+  });
+}
+
+function setGameMode(mode) {
+  gameMode = mode;
+  modeToggle.classList.toggle("ai", mode === "ai");
+  modeOptions.forEach((option) => {
+    option.classList.toggle("is-active", option.dataset.mode === mode);
   });
 }
 
@@ -134,9 +143,11 @@ swapButton.addEventListener("click", async () => {
   }
 });
 
-modeToggle.addEventListener("change", () => {
-  gameMode = modeToggle.checked ? "ai" : "two-player";
+modeOptions.forEach((option) => {
+  option.addEventListener("click", () => {
+    setGameMode(option.dataset.mode);
+  });
 });
 
-modeToggle.checked = false;
+setGameMode("two-player");
 loadState();
