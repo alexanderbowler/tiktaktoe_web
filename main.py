@@ -90,6 +90,21 @@ class TicTacToe:
 
         self.current_player = "O" if self.current_player == "X" else "X"
 
+    def make_ai_move(self) -> None: 
+        '''
+        Makes the ai move on the current board state
+        
+        :param self: Description
+        '''
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col] == None:
+                    self.board[row][col] = self.current_player
+                    self.current_player = "O" if self.current_player == "X" else "X"
+                    return
+                
+        
+
     def status_message(self) -> str:
         if self.winner:
             return f"{self.winner} wins"
@@ -143,4 +158,9 @@ def post_reset(payload: ResetRequest) -> dict:
 @app.post("/swap-first")
 def post_swap_first() -> dict:
     game.swap_first()
+    return game.to_dict()
+
+@app.post("/ai_move")
+def post_swap_first() -> dict:
+    game.make_ai_move()
     return game.to_dict()
