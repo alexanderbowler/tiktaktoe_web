@@ -81,7 +81,10 @@ async function loadState() {
 
 async function applyAIMove() {
   try {
-    const data = await apiRequest("/ai_move");
+    const data = await apiRequest("/ai_move", {
+      method: "POST",
+      body: "{}",
+    });
     render(data);
   } catch (error) {
     updateStatus(error.message);
