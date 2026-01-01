@@ -3,82 +3,93 @@ const statusText = document.getElementById("status");
 const resetButton = document.getElementById("reset");
 const swapButton = document.getElementById("swap");
 
-const winningLines = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+const API_BASE = window.TTT_API_BASE || "";
+const cells = Array.from(board.querySelectorAll(".cell"));
 
-let firstPlayer = "X";
-let currentPlayer = firstPlayer;
-let moves = 0;
 let locked = false;
-let cells = Array.from(board.querySelectorAll(".cell"));
 let state = Array(9).fill("");
 
 function updateStatus(message) {
   statusText.textContent = message;
 }
 
-function setCell(index, player) {
-  state[index] = player;
-  cells[index].textContent = player;
-  cells[index].classList.add("filled");
-  cells[index].setAttribute("aria-label", `Cell ${index + 1}, ${player}`);
-}
-
-function clearBoard() {
-  state = Array(9).fill("");
-  moves = 0;
-  locked = false;
-  cells.forEach((cell) => {
-    cell.textContent = "";
-    cell.classList.remove("filled", "win");
-    cell.setAttribute("aria-label", "Empty cell");
-  });
-  currentPlayer = firstPlayer;
-  updateStatus(`${currentPlayer} to move`);
-}
-
-function checkWinner() {
-  for (const line of winningLines) {
-    const [a, b, c] = line;
-    if (state[a] && state[a] === state[b] && state[a] === state[c]) {
-      return line;
+function applyBoard(boardState) {
+  const flat = boardState.flat();
+  state = flat.map((cell) => cell || "");
+  cells.forEach((cell, index) => {
+    cell.textContent = state[index];
+    cell.classList.toggle("filled", Boolean(state[index]));
+    cell.classList.remove("win");
+    if (state[index]) {
+      cell.setAttribute("aria-label", `Cell ${index + 1}, ${state[index]}`);
+    } else {
+      cell.setAttribute("aria-label", "Empty cell");
     }
-  }
-  return null;
+  });
 }
 
-function handleMove(index) {
+function applyWinningLine(line) {
+  if (!line) {
+    return;
+  }
+  line.forEach((index) => {
+    if (cells[index]) {
+      cells[index].classList.add("win");
+    }
+  });
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+
+  if (!response.ok) {
+    let detail = "Request failed";
+    try {
+      const data = await response.json();
+      if (data && data.detail) {
+        detail = data.detail;
+      }
+    } catch (error) {
+      // Keep default message when JSON parse fails.
+    }
+    throw new Error(detail);
+  }
+
+  return response.json();
+}
+
+function render(stateData) {
+  locked = stateData.locked;
+  applyBoard(stateData.board);
+  applyWinningLine(stateData.winning_line);
+  updateStatus(stateData.status_message);
+}
+
+async function loadState() {
+  try {
+    const data = await apiRequest("/state");
+    render(data);
+  } catch (error) {
+    updateStatus(error.message);
+  }
+}
+
+async function handleMove(index) {
   if (locked || state[index]) {
     return;
   }
-
-  setCell(index, currentPlayer);
-  moves += 1;
-
-  const winnerLine = checkWinner();
-  if (winnerLine) {
-    locked = true;
-    winnerLine.forEach((idx) => cells[idx].classList.add("win"));
-    updateStatus(`${currentPlayer} wins`);
-    return;
+  try {
+    const data = await apiRequest("/move", {
+      method: "POST",
+      body: JSON.stringify({ index }),
+    });
+    render(data);
+  } catch (error) {
+    updateStatus(error.message);
   }
-
-  if (moves === 9) {
-    locked = true;
-    updateStatus("Tie game");
-    return;
-  }
-
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  updateStatus(`${currentPlayer} to move`);
 }
 
 cells.forEach((cell) => {
@@ -88,13 +99,22 @@ cells.forEach((cell) => {
   });
 });
 
-resetButton.addEventListener("click", () => {
-  clearBoard();
+resetButton.addEventListener("click", async () => {
+  try {
+    const data = await apiRequest("/reset", { method: "POST", body: "{}" });
+    render(data);
+  } catch (error) {
+    updateStatus(error.message);
+  }
 });
 
-swapButton.addEventListener("click", () => {
-  firstPlayer = firstPlayer === "X" ? "O" : "X";
-  clearBoard();
+swapButton.addEventListener("click", async () => {
+  try {
+    const data = await apiRequest("/swap-first", { method: "POST" });
+    render(data);
+  } catch (error) {
+    updateStatus(error.message);
+  }
 });
 
-clearBoard();
+loadState();
