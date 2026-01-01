@@ -42,6 +42,10 @@ def is_full(board: np.ndarray) -> bool:
     return bool(np.all(board != None))
 
 
+def ai_move_stub(board: np.ndarray, player: Player) -> int:
+    raise NotImplementedError("AI move generation is not implemented yet.")
+
+
 class TicTacToe:
     def __init__(self) -> None:
         self.first_player: Player = "X"

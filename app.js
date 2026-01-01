@@ -2,15 +2,25 @@ const board = document.getElementById("board");
 const statusText = document.getElementById("status");
 const resetButton = document.getElementById("reset");
 const swapButton = document.getElementById("swap");
+const modeButton = document.getElementById("mode");
 
 const API_BASE = window.TTT_API_BASE || "";
 const cells = Array.from(board.querySelectorAll(".cell"));
 
 let locked = false;
 let state = Array(9).fill("");
+let gameMode = "two-player";
 
 function updateStatus(message) {
   statusText.textContent = message;
+}
+
+function updateModeButton() {
+  modeButton.textContent = gameMode === "two-player" ? "Mode: 2 Player" : "Mode: vs AI";
+}
+
+function requestAiMoveStub() {
+  throw new Error("AI mode is not wired yet.");
 }
 
 function applyBoard(boardState) {
@@ -87,6 +97,9 @@ async function handleMove(index) {
       body: JSON.stringify({ index }),
     });
     render(data);
+    if (gameMode === "ai" && !data.locked) {
+      requestAiMoveStub();
+    }
   } catch (error) {
     updateStatus(error.message);
   }
@@ -117,4 +130,10 @@ swapButton.addEventListener("click", async () => {
   }
 });
 
+modeButton.addEventListener("click", () => {
+  gameMode = gameMode === "two-player" ? "ai" : "two-player";
+  updateModeButton();
+});
+
+updateModeButton();
 loadState();
