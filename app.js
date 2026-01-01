@@ -2,7 +2,7 @@ const board = document.getElementById("board");
 const statusText = document.getElementById("status");
 const resetButton = document.getElementById("reset");
 const swapButton = document.getElementById("swap");
-const modeButton = document.getElementById("mode");
+const modeToggle = document.getElementById("mode-toggle");
 
 const API_BASE = window.TTT_API_BASE || "";
 const cells = Array.from(board.querySelectorAll(".cell"));
@@ -13,14 +13,6 @@ let gameMode = "two-player";
 
 function updateStatus(message) {
   statusText.textContent = message;
-}
-
-function updateModeButton() {
-  modeButton.textContent = gameMode === "two-player" ? "Mode: 2 Player" : "Mode: vs AI";
-}
-
-function requestAiMoveStub() {
-  throw new Error("AI mode is not wired yet.");
 }
 
 function applyBoard(boardState) {
@@ -87,6 +79,15 @@ async function loadState() {
   }
 }
 
+async function applyAIMove() {
+  try {
+    const data = await apiRequest("/ai_move");
+    render(data);
+  } catch (error) {
+    updateStatus(error.message);
+  }
+}
+
 async function handleMove(index) {
   if (locked || state[index]) {
     return;
@@ -98,7 +99,7 @@ async function handleMove(index) {
     });
     render(data);
     if (gameMode === "ai" && !data.locked) {
-      requestAiMoveStub();
+      applyAIMove();
     }
   } catch (error) {
     updateStatus(error.message);
@@ -130,10 +131,9 @@ swapButton.addEventListener("click", async () => {
   }
 });
 
-modeButton.addEventListener("click", () => {
-  gameMode = gameMode === "two-player" ? "ai" : "two-player";
-  updateModeButton();
+modeToggle.addEventListener("change", () => {
+  gameMode = modeToggle.checked ? "ai" : "two-player";
 });
 
-updateModeButton();
+modeToggle.checked = false;
 loadState();
