@@ -58,7 +58,6 @@ class TicTacToe:
         self.current_player = self.first_player
         self.winner: Optional[Player] = None
         self.winning_line: Optional[List[int]] = None
-        self.moves = 0
         self.locked = False
 
     def swap_first(self) -> None:
@@ -75,8 +74,33 @@ class TicTacToe:
             raise HTTPException(status_code=400, detail="Cell already taken")
 
         self.board[row, col] = self.current_player
-        self.moves += 1
+        self.check_state()
 
+        self.current_player = "O" if self.current_player == "X" else "X"
+
+    def make_ai_move(self) -> None: 
+        '''
+        Makes the ai move on the current board state
+        
+        :param self: Description
+        '''
+        found: bool = False
+        for row in range(3):
+            for col in range(3):
+                if not found and self.board[row][col] == None:
+                    self.board[row][col] = self.current_player
+                    self.current_player = "O" if self.current_player == "X" else "X"
+                    found = True
+        
+        self.check_state()
+
+        
+    def check_state(self):
+        '''
+        Checks if someone has won the board or if the board is full, returns true if the board is finished
+        
+        :param self: Description
+        '''
         winner, line = check_winner_line(self.board)
         if winner:
             self.winner = winner
@@ -87,23 +111,6 @@ class TicTacToe:
         if is_full(self.board):
             self.locked = True
             return
-
-        self.current_player = "O" if self.current_player == "X" else "X"
-
-    def make_ai_move(self) -> None: 
-        '''
-        Makes the ai move on the current board state
-        
-        :param self: Description
-        '''
-        for row in range(3):
-            for col in range(3):
-                if self.board[row][col] == None:
-                    self.board[row][col] = self.current_player
-                    self.current_player = "O" if self.current_player == "X" else "X"
-                    return
-                
-        
 
     def status_message(self) -> str:
         if self.winner:
@@ -120,7 +127,6 @@ class TicTacToe:
             "winner": self.winner,
             "winning_line": self.winning_line,
             "locked": self.locked,
-            "moves": self.moves,
             "status": "win" if self.winner else ("tie" if self.locked else "in_progress"),
             "status_message": self.status_message(),
         }
