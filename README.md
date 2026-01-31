@@ -45,3 +45,13 @@ Then refresh the page.
 - `POST /move` `{ "index": 0-8 }`
 - `POST /reset` `{ "first_player": "X" | "O" }`
 - `POST /swap-first`
+
+## C++ module (pybind11)
+Build commands:
+```bash
+cmake -S . -B build -Dpybind11_DIR=/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pybind11/share/cmake/pybind11
+cmake --build build
+```
+
+Usage note: the compiled module lives in `build/`, so imports work if you run from that directory
+(or if `main.py` has already added `build/` to `sys.path`).

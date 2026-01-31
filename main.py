@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import List, Optional
+import sys
+from pathlib import Path
 
 import numpy as np
 from fastapi import FastAPI, HTTPException
@@ -8,6 +10,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 Player = str  # "X" or "O"
+
+_build_dir = Path(__file__).resolve().parent / "build"
+if _build_dir.exists():
+    sys.path.insert(0, str(_build_dir))
+
+try:
+    from ttt_cpp import cpp_example
+except Exception:  # pragma: no cover - optional dependency
+    cpp_example = None
 
 
 class MoveRequest(BaseModel):
@@ -44,6 +55,12 @@ def is_full(board: np.ndarray) -> bool:
 
 def ai_move_stub(board: np.ndarray, player: Player) -> int:
     raise NotImplementedError("AI move generation is not implemented yet.")
+
+
+def cpp_example_wrapper(value: int) -> tuple[int, int]:
+    if cpp_example is None:
+        raise RuntimeError("C++ module not available. Build ttt_cpp first.")
+    return cpp_example(value)
 
 
 class TicTacToe:
@@ -93,6 +110,12 @@ class TicTacToe:
                     found = True
         
         self.check_state()
+
+    def get_minimax_move(self) -> tuple[int, int]:
+        '''
+        Applies the minimax algorithm on the current board state and returns the best move
+        '''
+        
 
         
     def check_state(self):
